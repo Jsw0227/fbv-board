@@ -1,0 +1,28 @@
+{% extends 'board/base.html' %}
+{% block title %}등록{% endblock  %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+<table border="1">
+    <tr>
+        <th>Title</th>
+        <td>
+            <input type="text" name="title">
+        </td>
+    </tr>
+    <tr>
+        <th>Writer</th>
+        <td>
+            <input type="text" name="writer">
+        </td>
+    </tr>
+    <tr>
+        <th>Content</th>
+        <td>
+            <textarea name="content"></textarea>
+        </td>
+    </tr>
+</table>
+<button type="submit">등록</button>
+</form>
+{% endblock %}

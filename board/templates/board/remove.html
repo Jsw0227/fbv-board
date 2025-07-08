@@ -1,0 +1,9 @@
+{% extends 'board/base.html' %}
+{% block title %}삭제{% endblock  %}
+{% block content %}
+<form method="post">
+    {% csrf_token %}
+    {{board.writer}}가 작성한 게시글을 삭제하시겠습니까? 
+    <button type="submit">예</button>
+</form>
+{% endblock %}
