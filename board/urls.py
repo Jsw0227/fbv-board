@@ -1,13 +1,11 @@
 from django.urls import path
-from . import views
-
-app_name = 'board'
+from .views import PostListView, PostDetailView, RegisterView, LoginView, LogoutView
 
 urlpatterns = [
-    path('',views.index, name='index'),
-    path('list/', views.list, name='list'),
-    path('read/<int:id>/', views.read, name='read'),
-    path('regist/', views.regist, name='regist'),
-    path('edit/<int:id>/', views.edit, name='edit'),
-    path('remove/<int:id>', views.remove, name='remove'),
+    path('register', RegisterView.as_view(), name='register'),
+    path('login', LoginView.as_view(), name='login'),
+    path('logout', LogoutView.as_view(), name='logout'),
+    path('posts', PostListView.as_view(), name='post-list'),
+    path('posts/<int:postId>', PostDetailView.as_view(), name='post-detail'),
+ 
 ]
