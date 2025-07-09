@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'board.apps.BoardConfig', # 앱 등록
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
