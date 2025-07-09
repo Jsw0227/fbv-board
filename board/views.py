@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from .models import Board
+from .models import Comment
 
 
 class RegisterView(APIView):
@@ -77,7 +78,7 @@ class LogoutView(APIView):
 
 class PostListView(APIView):
     @method_decorator(csrf_exempt)
-    @swagger_auto_schema(operation_summary="게시글 목록 조회",responses={200: BoardSerializer, 404: 'Board not found'})
+    @swagger_auto_schema(operation_summary="게시글 목록 조회", responses={200: BoardSerializer, 404: 'Board not found'})
     def get(self, request):
         boards = Board.objects.all().order_by('-id')
         serializer = BoardSerializer(boards, many=True)
@@ -128,3 +129,42 @@ class PostDetailView(APIView):
         except Board.DoesNotExist:
             return Response({'error': 'Board not found'}, status=status.HTTP_404_NOT_FOUND)
         
+@method_decorator(csrf_exempt, name='dispatch')
+class CommentView(APIView):
+    @swagger_auto_schema(
+        operation_summary="댓글 작성",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=['content'],
+            properties={
+                'content': openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={201: '댓글 작성 성공', 400: '잘못된 요청', 404: '게시글 미존재'},
+    )
+    def post(self, request, postId):
+        data = request.data
+        try:
+            post = Board.objects.get(pk=postId)
+            content = data.get('content')
+            user = request.user  # 로그인된 사용자
+
+            if content:
+                comment = Comment.objects.create(post=post, user=user, content=content)
+                return JsonResponse({"commentId": comment.id, "content": comment.content}, status=201)
+            return JsonResponse({"error": "댓글 내용이 필요합니다."}, status=400)
+        except Board.DoesNotExist:
+            return JsonResponse({"error": "게시글을 찾을 수 없습니다."}, status=404)
+
+class CommentDeleteView(APIView):
+    @swagger_auto_schema(
+        operation_summary="댓글 삭제",
+        responses={200: '댓글 삭제 성공', 404: '댓글 미존재'},
+    )
+    def delete(self, request, postId, commentId):
+        try:
+            comment = Comment.objects.get(pk=commentId, post_id=postId)
+            comment.delete()
+            return JsonResponse({"message": "댓글이 삭제되었습니다."}, status=200)
+        except Comment.DoesNotExist:
+            return JsonResponse({"error": "댓글을 찾을 수 없습니다."}, status=404)
